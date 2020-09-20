@@ -73,7 +73,7 @@ async function getOwnEstimate (t) {
  * @returns {boolean}
  */
 async function hasSettingStopOnMove (t) {
-    return (await t.get('member', 'private', dataPrefix + '-personal-settings', 1)) === 1;
+    return (await t.get('member', 'private', dataPrefix + '-stop-on-move', 1)) === 1;
 }
 
 /**
@@ -81,7 +81,24 @@ async function hasSettingStopOnMove (t) {
  * @param {boolean} value 
  */
 async function setSettingStopOnMove (t, value) {
-    await t.set('member', 'private', dataPrefix + '-personal-settings', value === true ? 1 : 0);
+    await t.set('member', 'private', dataPrefix + '-stop-on-move', value === true ? 1 : 0);
+}
+
+/**
+ * @param t
+ * 
+ * @returns {null|string} 
+ */
+async function getSettingListOnStart (t) {
+    return t.get('member', 'private', dataPrefix + '-list-on-start', null);
+}
+
+/**
+ * @param t 
+ * @param {null|strng} value 
+ */
+async function setSettingListOnStart (t, value) {
+    await t.set('member', 'private', dataPrefix + '-list-on-start', value);
 }
 
 /**
@@ -215,7 +232,7 @@ async function startTimer (t) {
     const memberId = (await t.member('id')).id;
     const timers = await Timers.getFromContext(t);
 
-    (await t.cards('all')).forEach(async (card) => {
+    (await t.cards('id')).forEach(async (card) => {
         const cardTimers = await Timers.getFromCardId(t, card.id);
         const timer = cardTimers.getByMember(memberId);
 
@@ -239,6 +256,20 @@ async function startTimer (t) {
             cardTimers.saveByCardId(t, card.id);
         }
     });
+
+    const listOnStart = await getSettingListOnStart(t);
+
+    if (listOnStart !== null) {
+        try {
+            const token = await t.getRestApi().getToken();
+            const boardId = (await t.board('id')).id;
+            const cardId = (await t.card('id')).id;
+
+            // TODO: Move card to list from settings
+        } catch (e) {
+            console.log('e:', e);
+        }
+    }
 
     timers.startByMember(memberId, listId);
 
@@ -913,5 +944,7 @@ module.exports = {
     clearEstimates,
     deleteEstimate,
     hasSettingStopOnMove,
-    setSettingStopOnMove
+    setSettingStopOnMove,
+    getSettingListOnStart,
+    setSettingListOnStart
 };

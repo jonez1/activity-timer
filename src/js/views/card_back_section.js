@@ -5,10 +5,13 @@ const {
     startTimer, stopTimer, getOwnEstimate,
     getTotalEstimate, getEstimates,
     hasEstimateFeature, clearEstimates,
-    deleteEstimate
+    deleteEstimate, apiKey, appName
 } = require('../shared.js');
 
-const t = window.TrelloPowerUp.iframe();
+const t = window.TrelloPowerUp.iframe({
+    appKey: apiKey,
+    appName: appName
+});
 
 const startTimerBtn = document.querySelector('.btn-start-timer');
 const stopTimerBtn = document.querySelector('.btn-stop-timer');
